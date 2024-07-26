@@ -20,8 +20,7 @@ struct EventContext
 {
     SDL_Event ev;
     bool doQuit = false;
-    bool doActionWait = false;
-    bool doClick = false;
+    bool doDrag = false;
 }
 
 struct WindowContext

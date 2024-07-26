@@ -1,5 +1,7 @@
 import std.stdio;
 import std.range;
+import std.math.rounding;
+
 import context;
 import win;
 import bindbc.sdl;
@@ -10,7 +12,6 @@ import bindbc.sdl;
 
 enum int WIDTH = 800;
 enum int HEIGHT = 600;
-enum int FPS = 60;
 
 enum ZColor
 {
@@ -29,6 +30,10 @@ uint[5] palette = [
 static DisplayContext* dctx;
 static WindowContext* wctx;
 static EventContext* ectx;
+
+static ulong f_start;
+static ulong f_end;
+static float f_elapsed;
 
 //
 // rendering functions
@@ -104,9 +109,10 @@ bool doInit(int width, int height)
     wctx.max_width = width;
     wctx.max_height = height;
 
-    makeWindow(300, 80, 20, 20, ZColor.RED);
+    makeWindow(300, 80, 50, 50, ZColor.RED);
     makeWindow(100, 100, 100, 300, ZColor.BLUE);
     makeWindow(199, 100, 409, 400, ZColor.GREEN);
+    makeWindow(299, 200, 150, 150, ZColor.WHITE);
 
     ectx = new EventContext;
 
@@ -158,6 +164,20 @@ void doShutdown()
 // event stuff
 //
 
+void handleMouseDown()
+{
+    wctx.cur = returnWindowRef();
+
+    if(wctx.cur != null)
+        ectx.doDrag = true;
+}
+
+void handleMouseUp()
+{
+    wctx.cur = null;
+    ectx.doDrag = false;
+}
+
 void handleEvents()
 {
     SDL_PollEvent(&ectx.ev);
@@ -168,10 +188,10 @@ void handleEvents()
             ectx.doQuit = true;
             break;
         case SDL_MOUSEBUTTONDOWN:
-            // ectx.doClick = true;
+            handleMouseDown();
             break;
         case SDL_MOUSEBUTTONUP:
-            // ectx.doClick = false;
+            handleMouseUp();
             break;
         default:
             break;
@@ -189,10 +209,10 @@ void makeWindow(int width, int height, int x, int y, ZColor c)
 
 void drawWindows()
 {
-    foreach (ref p; dctx.pixel_buffer)
+    foreach(ref p; dctx.pixel_buffer)
         p = palette[ZColor.BLACK];
 
-    foreach (ZWindow w; wctx.win_list)
+    foreach(ZWindow w; wctx.win_list)
         draw_win(w.x, w.y, w.dx, w.dy, w.color);
 }
 
@@ -226,6 +246,12 @@ finish:
 
 void updateWindows()
 {   
+    if(ectx.doDrag)
+    {
+        wctx.cur.x += wctx.bug.rel_x;
+        wctx.cur.y += wctx.bug.rel_y;
+    }
+
     // if(ectx.doClick)
     // {
     //     wctx.cur = returnWindowRef();
@@ -246,7 +272,7 @@ void updateWindows()
 
 int main()
 {
-    if (doInit(WIDTH, HEIGHT) is false)
+    if(doInit(WIDTH, HEIGHT) is false)
     {
         doShutdown();
         return 1;
@@ -258,10 +284,12 @@ int main()
         return 1;
     }
 
-    while (1)
+    while(1)
     {
         if (ectx.doQuit)
             break;
+
+        f_start = SDL_GetPerformanceCounter();
 
         handleEvents();
         updateBug();
@@ -269,7 +297,12 @@ int main()
         drawWindows();
         doRender();
 
-        SDL_Delay(FPS);
+        f_end = SDL_GetPerformanceCounter();
+        f_elapsed = (f_end - f_start) / (SDL_GetPerformanceFrequency() * 1000.0f);
+
+        // cap to 60 fps
+        SDL_Delay(cast(uint)floor(16.666f - f_elapsed));
+
     }
 
     doShutdown();
