@@ -1,0 +1,17 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/sdl_win
+sdl_win.so
+sdl_win.dylib
+sdl_win.dll
+sdl_win.a
+sdl_win.lib
+sdl_win-test-*
+*.exe
+*.pdb
+*.o
+*.obj
+*.lst
+.DS_STORE

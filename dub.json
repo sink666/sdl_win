@@ -1,0 +1,21 @@
+{
+  "authors": ["sinkuchan"],
+  "copyright": "Copyright © 2024, sinkuchan",
+  "dependencies": {
+    "bindbc-sdl": "~>1.4.8"
+  },
+  "versions": [
+    "SDL_2_30", 
+    "SDL_Image_2_8"
+  ],
+  "libs": [
+    "SDL2",
+    "SDL2_Image"
+  ],
+  "subConfigurations": {
+    "bindbc-sdl": "static"
+  },
+  "description": "window system for sdl",
+  "license": "GPL-3.0-or-later",
+  "name": "sdl_win"
+}
