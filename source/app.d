@@ -169,13 +169,13 @@ void handleMouseDown()
     wctx.cur = returnWindowRef();
 
     if(wctx.cur != null)
-        ectx.doDrag = true;
+        ectx.doMoveWin = true;
 }
 
 void handleMouseUp()
 {
     wctx.cur = null;
-    ectx.doDrag = false;
+    ectx.doMoveWin = false;
 }
 
 void handleEvents()
@@ -246,7 +246,7 @@ finish:
 
 void updateWindows()
 {   
-    if(ectx.doDrag)
+    if(ectx.doMoveWin)
     {
         wctx.cur.x += wctx.bug.rel_x;
         wctx.cur.y += wctx.bug.rel_y;
