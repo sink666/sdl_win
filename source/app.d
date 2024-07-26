@@ -114,7 +114,7 @@ void doShutdown()
 
 void handleMouseDown()
 {
-    wctx.cur = returnWindowRef(wctx.cur, wctx.win_list, &wctx.bug);
+    wctx.cur = returnWindowRef(wctx.cur, wctx.win_list, wctx.bug);
 
     if(wctx.cur != null)
         ectx.doMoveWin = true;
@@ -173,7 +173,7 @@ int main()
 
         handleEvents();
         updateBug(&wctx.bug);
-        updateWindows(ectx.doMoveWin, wctx.cur, &wctx.bug);
+        updateWindows(ectx.doMoveWin, wctx.cur, wctx.bug);
         drawWindows(dctx, wctx.win_list);
         doRender(dctx);
 

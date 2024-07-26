@@ -75,7 +75,7 @@ void updateBug(ZBug* bref)
     SDL_GetRelativeMouseState(&bref.rel_x, &bref.rel_y);
 }
 
-ZWindow* returnWindowRef(ZWindow* cur, ref ZWindow[] winlist, ZBug* bref)
+ZWindow* returnWindowRef(ZWindow* cur, ref ZWindow[] winlist, ref ZBug bref)
 {
     ZWindow* ret = cur;
     ZWindow[] new_list;
@@ -111,7 +111,7 @@ finish:
     return ret;
 }
 
-void updateWindows(bool doMove, ZWindow* cur, ZBug* bref)
+void updateWindows(bool doMove, ZWindow* cur, ref ZBug bref)
 {   
     if(doMove)
     {
