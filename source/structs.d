@@ -1,4 +1,4 @@
-module context;
+module structs;
 
 import win;
 import bindbc.sdl;

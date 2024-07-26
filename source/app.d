@@ -1,8 +1,8 @@
 import std.stdio;
-import std.range;
 import std.math.rounding;
 
-import context;
+import structs;
+import render;
 import win;
 import bindbc.sdl;
 
@@ -13,20 +13,6 @@ import bindbc.sdl;
 enum int WIDTH = 800;
 enum int HEIGHT = 600;
 
-enum ZColor
-{
-    BLACK,
-    RED,
-    BLUE,
-    GREEN,
-    WHITE,
-    MAX
-}
-
-uint[5] palette = [
-    0x00000000, 0x000000FF, 0x0000FF00, 0x00FF0000, 0x00FFFFFF
-];
-
 static DisplayContext* dctx;
 static WindowContext* wctx;
 static EventContext* ectx;
@@ -34,44 +20,6 @@ static EventContext* ectx;
 static ulong f_start;
 static ulong f_end;
 static float f_elapsed;
-
-//
-// rendering functions
-//
-
-void change_pixel(int x, int y, uint color)
-{
-    int index = (dctx.buf_stride * x) + y;
-
-    if (index < dctx.pixel_buffer.length)
-    {
-        dctx.pixel_buffer[index] = color;
-    }
-}
-
-void draw_win(int x, int y, int width, int height, uint color)
-{
-    int xplusw = x + width;
-    int yplush = y + height;
-
-    for (int j = y; j < yplush; ++j)
-    {
-        for (int k = x; k < xplusw; ++k)
-        {
-            if(k < 0 || k >= dctx.width || (j < 0 || j >= dctx.height))
-                continue;
-            else
-                change_pixel(j, k, color);
-        }
-    }
-}
-
-void doRender()
-{
-    SDL_UpdateTexture(dctx.framebuffer_ptr, null, dctx.pixel_buffer.ptr, dctx.buf_pitch);
-    SDL_RenderCopy(dctx.renderer_ptr, dctx.framebuffer_ptr, null, null);
-    SDL_RenderPresent(dctx.renderer_ptr);
-}
 
 //
 // begin init, main loop, rendering
@@ -109,10 +57,10 @@ bool doInit(int width, int height)
     wctx.max_width = width;
     wctx.max_height = height;
 
-    makeWindow(300, 80, 50, 50, ZColor.RED);
-    makeWindow(100, 100, 100, 300, ZColor.BLUE);
-    makeWindow(199, 100, 409, 400, ZColor.GREEN);
-    makeWindow(299, 200, 150, 150, ZColor.WHITE);
+    makeWindow(wctx.win_list, 300, 80, 50, 50, ZColor.RED);
+    makeWindow(wctx.win_list, 100, 100, 100, 300, ZColor.BLUE);
+    makeWindow(wctx.win_list, 199, 100, 409, 400, ZColor.GREEN);
+    makeWindow(wctx.win_list, 299, 200, 150, 150, ZColor.WHITE);
 
     ectx = new EventContext;
 
@@ -166,7 +114,7 @@ void doShutdown()
 
 void handleMouseDown()
 {
-    wctx.cur = returnWindowRef();
+    wctx.cur = returnWindowRef(wctx.cur, wctx.win_list, &wctx.bug);
 
     if(wctx.cur != null)
         ectx.doMoveWin = true;
@@ -199,74 +147,6 @@ void handleEvents()
 }
 
 //
-// window functions
-//
-
-void makeWindow(int width, int height, int x, int y, ZColor c)
-{
-    wctx.win_list ~= ZWindow(width, height, x, y, palette[c]);
-}
-
-void drawWindows()
-{
-    foreach(ref p; dctx.pixel_buffer)
-        p = palette[ZColor.BLACK];
-
-    foreach(ZWindow w; wctx.win_list)
-        draw_win(w.x, w.y, w.dx, w.dy, w.color);
-}
-
-void updateBug()
-{
-    SDL_GetMouseState(&wctx.bug.x, &wctx.bug.y);
-    SDL_GetRelativeMouseState(&wctx.bug.rel_x, &wctx.bug.rel_y);
-}
-
-ZWindow* returnWindowRef()
-{
-    ZWindow* ret = wctx.cur;
-
-    if(ret != null)
-        goto finish;
-
-    foreach_reverse(ref w; wctx.win_list)
-    {
-        ZBug* b = &wctx.bug;
-
-        if(b.x >= w.x && b.x <= (w.x + w.dx) &&
-            b.y >= w.y && b.y <= (w.y + w.dy))
-        {
-            ret = &w;
-        }
-    }
-
-finish:
-    return ret;
-}
-
-void updateWindows()
-{   
-    if(ectx.doMoveWin)
-    {
-        wctx.cur.x += wctx.bug.rel_x;
-        wctx.cur.y += wctx.bug.rel_y;
-    }
-
-    // if(ectx.doClick)
-    // {
-    //     wctx.cur = returnWindowRef();
-
-    //     if(wctx.cur != null)
-    //     {
-    //         wctx.cur.x += wctx.bug.rel_x;
-    //         wctx.cur.y += wctx.bug.rel_y;
-    //     }
-    // }
-
-    // wctx.cur = null;
-}
-
-//
 //
 //
 
@@ -292,10 +172,10 @@ int main()
         f_start = SDL_GetPerformanceCounter();
 
         handleEvents();
-        updateBug();
-        updateWindows();
-        drawWindows();
-        doRender();
+        updateBug(&wctx.bug);
+        updateWindows(ectx.doMoveWin, wctx.cur, &wctx.bug);
+        drawWindows(dctx, wctx.win_list);
+        doRender(dctx);
 
         f_end = SDL_GetPerformanceCounter();
         f_elapsed = (f_end - f_start) / (SDL_GetPerformanceFrequency() * 1000.0f);
