@@ -48,7 +48,6 @@ struct ZWindow
         y = yy;
         color = cc;
     }
-
 }
 
 //
@@ -66,7 +65,7 @@ void drawWindows(DisplayContext* dctx, ref ZWindow[] winlist)
         p = palette[ZColor.BLACK];
 
     foreach(ref w; winlist)
-        draw_win(dctx, w.x, w.y, w.dx, w.dy, w.color);
+        draw_win(dctx, w);
 }
 
 void updateBug(ZBug* bref)
@@ -81,6 +80,7 @@ ZWindow* returnWindowRef(ZWindow* cur, ref ZWindow[] winlist, ref ZBug bref)
     ZWindow[] new_list;
     ZWindow focus_copy;
     size_t index;
+    bool found_win = false;
 
     if(ret != null)
         goto finish;
@@ -92,8 +92,12 @@ ZWindow* returnWindowRef(ZWindow* cur, ref ZWindow[] winlist, ref ZBug bref)
         {
             index = i;
             focus_copy = w;
+            found_win = true;
         }
     }
+
+    if(found_win is false)
+        goto finish;
 
     for(size_t i = 0; i < winlist.length; ++i)
     {

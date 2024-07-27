@@ -1,6 +1,7 @@
 module render;
 
 import structs;
+import win;
 import bindbc.sdl;
 
 enum ZColor
@@ -26,24 +27,22 @@ void change_pixel(DisplayContext* dctx, int x, int y, uint color)
     int index = (dctx.buf_stride * x) + y;
 
     if (index < dctx.pixel_buffer.length)
-    {
         dctx.pixel_buffer[index] = color;
-    }
 }
 
-void draw_win(DisplayContext* dctx, int x, int y, int width, int height, uint color)
+void draw_win(DisplayContext* dctx, ref ZWindow win)
 {
-    int xplusw = x + width;
-    int yplush = y + height;
+    int xplusw = win.x + win.dx;
+    int yplush = win.y + win.dy;
 
-    for (int j = y; j < yplush; ++j)
+    for (int j = win.y; j < yplush; ++j)
     {
-        for (int k = x; k < xplusw; ++k)
+        for (int k = win.x; k < xplusw; ++k)
         {
             if(k < 0 || k >= dctx.width || (j < 0 || j >= dctx.height))
                 continue;
             else
-                change_pixel(dctx, j, k, color);
+                change_pixel(dctx, j, k, win.color);
         }
     }
 }
@@ -51,6 +50,7 @@ void draw_win(DisplayContext* dctx, int x, int y, int width, int height, uint co
 void doRender(DisplayContext* dctx)
 {
     SDL_UpdateTexture(dctx.framebuffer_ptr, null, dctx.pixel_buffer.ptr, dctx.buf_pitch);
+    // SDL_RenderCopyEx(dctx.renderer_ptr, dctx.framebuffer_ptr, null, null, 90.0, null, SDL_FLIP_VERTICAL);
     SDL_RenderCopy(dctx.renderer_ptr, dctx.framebuffer_ptr, null, null);
     SDL_RenderPresent(dctx.renderer_ptr);
 }

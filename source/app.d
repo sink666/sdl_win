@@ -82,7 +82,7 @@ bool doInit(int width, int height)
         goto init_err;
 
     dctx.framebuffer_ptr = SDL_CreateTexture(dctx.renderer_ptr, SDL_PIXELFORMAT_RGBA32,
-        SDL_TEXTUREACCESS_TARGET, width, height);
+        SDL_TEXTUREACCESS_STREAMING, width, height);
     if (dctx.framebuffer_ptr is null)
         goto init_err;
 

@@ -26,7 +26,7 @@ struct EventContext
 struct WindowContext
 {
     ZWindow[] win_list;
-    ZWindow* cur;
+    ZWindow* cur = null;
 
     ZBug bug;
     SDL_Cursor* cursor;
