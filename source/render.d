@@ -24,7 +24,7 @@ uint[5] palette = [
 
 void change_pixel(DisplayContext* dctx, int x, int y, uint color)
 {
-    int index = (dctx.buf_stride * x) + y;
+    int index = (dctx.buf_stride * y) + x;
 
     if (index < dctx.pixel_buffer.length)
         dctx.pixel_buffer[index] = color;
@@ -42,7 +42,7 @@ void draw_win(DisplayContext* dctx, ref ZWindow win)
             if(k < 0 || k >= dctx.width || (j < 0 || j >= dctx.height))
                 continue;
             else
-                change_pixel(dctx, j, k, win.color);
+                change_pixel(dctx, k, j, win.color);
         }
     }
 }
