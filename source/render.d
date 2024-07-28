@@ -14,13 +14,19 @@ enum ZColor
     MAX
 }
 
-uint[5] palette = [
+uint[5] pal = [
     0x00000000, 0x000000FF, 0x0000FF00, 0x00FF0000, 0x00FFFFFF
 ];
 
 //
 // rendering functions
 //
+
+void clear_pb(DisplayContext* dctx, ZColor c)
+{
+    // ldc optimizes this, makes it a memset or something
+    dctx.pixel_buffer[] = pal[c];
+}
 
 void change_pixel(DisplayContext* dctx, int x, int y, uint color)
 {

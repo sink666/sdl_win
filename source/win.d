@@ -29,24 +29,34 @@ struct ZWindow
     int x;
     int y;
 
+    // decoration stuff
+    int bezel_wid = 2;
+
     // state stuff
     bool hidden = false;
     bool kill = false;
     uint color;
 
     // titlebar
-    // string tb_title;
+    string tb_title;
     // ZButton[] tb_controls;
+    // has its own interaction rect
+    int tb_dx;
+    int tb_dy;
 
-    //
-
-    this(int w, int h, int xx, int yy, uint cc)
+    // constructor
+    this(int w, int h, int xx, int yy, string str)
     {
-        dx = w;
-        dy = h;
         x = xx;
         y = yy;
-        color = cc;
+        dx = w;
+        dy = h;
+
+        tb_dx = dx;
+        tb_dy = ((dy / 4) * 3);
+
+        color = pal[ZColor.BLACK];
+        tb_title = str;
     }
 }
 
@@ -54,18 +64,25 @@ struct ZWindow
 // window functions
 //
 
-void makeWindow(ref ZWindow[] winlist, int width, int height, int x, int y, ZColor c)
+void makeWindow(ref ZWindow[] winlist, int width, int height, int x, int y, string str)
 {
-    winlist ~= ZWindow(width, height, x, y, palette[c]);
+    winlist ~= ZWindow(width, height, x, y, str);
 }
 
+// a window is:
+// - the frame -- top bar, divider between top bar and content area
+// - the decorations -- title, top bar buttons
+// - content area -- buttons, images, etc in the content area
 void drawWindows(DisplayContext* dctx, ref ZWindow[] winlist)
 {
-    foreach(ref p; dctx.pixel_buffer)
-        p = palette[ZColor.BLACK];
-
     foreach(ref w; winlist)
+    {
+        // draw rect edge: frame edge
+        // draw line: 'border' between top and content
+        // draw text: title
+        // draw window controls
         draw_win(dctx, w);
+    }
 }
 
 void updateBug(ZBug* bref)

@@ -57,10 +57,7 @@ bool doInit(int width, int height)
     wctx.max_width = width;
     wctx.max_height = height;
 
-    makeWindow(wctx.win_list, 300, 80, 50, 50, ZColor.RED);
-    makeWindow(wctx.win_list, 100, 100, 100, 300, ZColor.BLUE);
-    makeWindow(wctx.win_list, 199, 100, 409, 400, ZColor.GREEN);
-    makeWindow(wctx.win_list, 299, 200, 150, 150, ZColor.WHITE);
+    makeWindow(wctx.win_list, 300, 200, 150, 150, "Examble");
 
     ectx = new EventContext;
 
@@ -174,6 +171,9 @@ int main()
         handleEvents();
         updateBug(&wctx.bug);
         updateWindows(ectx.doMoveWin, wctx.cur, wctx.bug);
+
+        // ldc optimizes this, makes it a memset or something
+        clear_pb(dctx, ZColor.WHITE);
         drawWindows(dctx, wctx.win_list);
         doRender(dctx);
 
@@ -182,7 +182,6 @@ int main()
 
         // cap to 60 fps
         SDL_Delay(cast(uint)floor(16.666f - f_elapsed));
-
     }
 
     doShutdown();
